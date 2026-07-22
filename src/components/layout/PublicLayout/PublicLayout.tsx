@@ -2,17 +2,14 @@
 
 import React, { useEffect } from 'react';
 import { Header } from '../Header';
-import { Sidebar } from '../Sidebar';
-import { Footer } from '../Footer';
 import { AuthModal } from '../../auth/AuthModal';
 import { useAuthStore } from '../../../store/useAuthStore';
 
-interface MainLayoutProps {
+interface PublicLayoutProps {
   children: React.ReactNode;
-  showSidebar?: boolean;
 }
 
-export function MainLayout({ children, showSidebar = true }: MainLayoutProps) {
+export function PublicLayout({ children }: PublicLayoutProps) {
   const checkUser = useAuthStore((s) => s.checkUser);
 
   useEffect(() => {
@@ -22,11 +19,7 @@ export function MainLayout({ children, showSidebar = true }: MainLayoutProps) {
   return (
     <div className="flex min-h-screen flex-col bg-dark-900">
       <Header />
-      <div className="flex flex-1">
-        {showSidebar && <Sidebar />}
-        <main className="flex-1 overflow-y-auto">{children}</main>
-      </div>
-      <Footer />
+      <main className="flex-1">{children}</main>
       <AuthModal />
     </div>
   );

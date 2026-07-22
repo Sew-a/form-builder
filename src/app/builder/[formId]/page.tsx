@@ -9,9 +9,11 @@ import { api } from '../../../lib/api';
 import { useFormStore } from '../../../store/useFormStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useSocket } from '../../../hooks/useSocket';
-import { FieldPalette } from '../../../components/builder/FieldPalette';
-import { BuilderCanvas } from '../../../components/builder/BuilderCanvas';
-import { PropertyPanel } from '../../../components/builder/PropertyPanel';
+import { FieldPalette } from '@/components/builder/FieldPalette';
+import { BuilderCanvas } from '@/components/builder/BuilderCanvas';
+import { PropertyPanel } from '@/components/builder/PropertyPanel';
+import { BuilderHeader } from '@/components/builder/BuilderHeader';
+import { ROUTES } from '@/lib/routes';
 
 export default function BuilderPage({ params }: { params: { formId: string } }) {
   const router = useRouter();
@@ -154,7 +156,7 @@ export default function BuilderPage({ params }: { params: { formId: string } }) 
       <div className="flex h-screen items-center justify-center bg-dark-950">
         <div className="text-center space-y-4">
           <p className="text-dark-300">{error}</p>
-          <Link href="/dashboard" className="text-sm font-semibold text-accent-400 hover:text-accent-300">
+          <Link href={ROUTES.dashboard} className="text-sm font-semibold text-accent-400 hover:text-accent-300">
             Back to Dashboard
           </Link>
         </div>
@@ -164,52 +166,16 @@ export default function BuilderPage({ params }: { params: { formId: string } }) 
 
   return (
     <div className="flex h-screen flex-col bg-dark-950">
-      <header className="flex h-14 items-center justify-between border-b border-dark-600 bg-dark-800/80 backdrop-blur-md px-4">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/dashboard"
-            className="text-sm font-medium text-dark-300 hover:text-dark-100 transition-colors"
-          >
-            Dashboard
-          </Link>
-          <svg className="h-4 w-4 text-dark-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-          {titleEditing ? (
-            <input
-              type="text"
-              value={localTitle}
-              onChange={(e) => setLocalTitle(e.target.value)}
-              onBlur={handleTitleSave}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleTitleSave(); }}
-              autoFocus
-              className="rounded-lg border border-dark-500 bg-dark-900 px-2 py-1 text-sm font-bold text-dark-50 focus:outline-none focus:ring-2 focus:border-accent-500 focus:ring-accent-500/10"
-            />
-          ) : (
-            <h1
-              onClick={() => setTitleEditing(true)}
-              className="text-sm font-bold text-dark-100 cursor-pointer hover:text-accent-400 transition-colors"
-              title="Click to rename"
-            >
-              {localTitle}
-            </h1>
-          )}
-        </div>
-
-        <div className="flex items-center gap-3">
-          {saving && (
-            <span className="text-xs text-dark-400 flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-              Saving...
-            </span>
-          )}
-          {fields.length > 0 && (
-            <span className="text-xs text-dark-400">
-              {fields.length} field{fields.length !== 1 ? 's' : ''}
-            </span>
-          )}
-        </div>
-      </header>
+      <BuilderHeader
+        localTitle={localTitle}
+        titleEditing={titleEditing}
+        saving={saving}
+        fieldsCount={fields.length}
+        onTitleClick={() => setTitleEditing(true)}
+        onTitleSave={handleTitleSave}
+        onTitleChange={setLocalTitle}
+        onTitleKeyDown={(e) => { if (e.key === 'Enter') handleTitleSave(); }}
+      />
 
       <div className="flex flex-1 overflow-hidden">
         <FieldPalette onAddField={handleAddField} />

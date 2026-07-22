@@ -34,7 +34,7 @@ module.exports = {
         },
       },
       fontFamily: {
-        logo: ['"Playfair Display"', 'Georgia', 'serif'],
+        logo: ['"Story Script"', 'Georgia', 'serif'],
         body: ['Inter', 'system-ui', 'sans-serif'],
       },
       keyframes: {

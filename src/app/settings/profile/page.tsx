@@ -1,7 +1,7 @@
 'use client';
 
-import { MainLayout } from '../../../components/layout/MainLayout';
-import { ProfileSettings } from '../../../components/settings/ProfileSettings';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { ProfileSettings } from '@/components/settings/ProfileSettings';
 
 export default function ProfileSettingsPage() {
   return (
