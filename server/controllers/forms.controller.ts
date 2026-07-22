@@ -6,6 +6,38 @@ import { CreateFormSchema, UpdateFormSchema, SubmitResponseSchema } from '../../
 import { ApiError } from '../middleware/error.middleware';
 import { AuthedRequest } from '../middleware/auth.middleware';
 
+// Convert a Mongoose document to a plain object with `id` as string
+function toFormDTO(doc: any) {
+  const obj = doc.toObject({ versionKey: false });
+  return {
+    id: String(obj._id),
+    title: obj.title,
+    description: obj.description,
+    ownerId: String(obj.ownerId),
+    collaborators: (obj.collaborators || []).map((c: any) => ({
+      userId: String(c.userId),
+      role: c.role,
+    })),
+    fields: (obj.fields || []).map((f: any) => ({
+      id: f.id,
+      type: f.type,
+      label: f.label,
+      placeholder: f.placeholder,
+      required: f.required,
+      options: f.options,
+      order: f.order,
+      content: f.content,
+      backgroundColor: f.backgroundColor,
+      borderColor: f.borderColor,
+      borderRadius: f.borderRadius,
+      width: f.width,
+    })),
+    settings: obj.settings,
+    createdAt: obj.createdAt?.toISOString?.() || obj.createdAt,
+    updatedAt: obj.updatedAt?.toISOString?.() || obj.updatedAt,
+  };
+}
+
 // Helper: can this user view/edit this form?
 async function loadOwnedForm(formId: string, userId: string) {
   const form = await Form.findById(formId);
@@ -25,7 +57,7 @@ export async function listForms(req: AuthedRequest, res: Response) {
     $or: [{ ownerId: req.userId }, { 'collaborators.userId': req.userId }],
   }).sort({ updatedAt: -1 });
 
-  res.json(forms);
+  res.json(forms.map(toFormDTO));
 }
 
 export async function createForm(req: AuthedRequest, res: Response) {
@@ -39,12 +71,12 @@ export async function createForm(req: AuthedRequest, res: Response) {
     collaborators: [],
   });
 
-  res.status(201).json(form);
+  res.status(201).json(toFormDTO(form));
 }
 
 export async function getForm(req: AuthedRequest, res: Response) {
   const form = await loadOwnedForm(req.params.id, req.userId!);
-  res.json(form);
+  res.json(toFormDTO(form));
 }
 
 export async function updateForm(req: AuthedRequest, res: Response) {
@@ -56,7 +88,7 @@ export async function updateForm(req: AuthedRequest, res: Response) {
   Object.assign(form, parsed.data);
   await form.save();
 
-  res.json(form);
+  res.json(toFormDTO(form));
 }
 
 export async function deleteForm(req: AuthedRequest, res: Response) {
@@ -75,12 +107,13 @@ export async function getPublicForm(req: AuthedRequest, res: Response) {
   if (!form || !form.settings.isPublished) {
     throw new ApiError(404, 'Form not found or not published');
   }
+  const dto = toFormDTO(form);
   res.json({
-    id: form._id,
-    title: form.title,
-    description: form.description,
-    fields: form.fields,
-    settings: { submitMessage: form.settings.submitMessage },
+    id: dto.id,
+    title: dto.title,
+    description: dto.description,
+    fields: dto.fields,
+    settings: { submitMessage: dto.settings.submitMessage },
   });
 }
 
@@ -98,11 +131,16 @@ export async function submitResponse(req: AuthedRequest, res: Response) {
     answers: parsed.data.answers,
   });
 
-  res.status(201).json({ id: response._id });
+  res.status(201).json({ id: String(response._id) });
 }
 
 export async function listResponses(req: AuthedRequest, res: Response) {
   await loadOwnedForm(req.params.id, req.userId!); // ensures access
   const responses = await ResponseModel.find({ formId: req.params.id }).sort({ submittedAt: -1 });
-  res.json(responses);
+  res.json(responses.map((r: any) => ({
+    id: String(r._id),
+    formId: String(r.formId),
+    answers: r.answers,
+    submittedAt: r.submittedAt?.toISOString?.() || r.submittedAt,
+  })));
 }

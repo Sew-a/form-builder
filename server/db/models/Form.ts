@@ -9,6 +9,11 @@ export interface FormFieldSubdoc {
   required: boolean;
   options?: string[];
   order: number;
+  content?: string;
+  backgroundColor?: string;
+  borderColor?: string;
+  borderRadius?: string;
+  width?: 'full' | 'half' | 'auto';
 }
 
 export interface CollaboratorSubdoc {
@@ -39,6 +44,11 @@ const FormFieldSchema = new Schema<FormFieldSubdoc>(
     required: { type: Boolean, default: false },
     options: [{ type: String }],
     order: { type: Number, required: true },
+    content: { type: String },
+    backgroundColor: { type: String },
+    borderColor: { type: String },
+    borderRadius: { type: String },
+    width: { type: String, enum: ['full', 'half', 'auto'] },
   },
   { _id: false },
 );

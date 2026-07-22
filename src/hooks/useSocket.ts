@@ -14,6 +14,8 @@ export function useSocket(formId: string, userName?: string) {
   const { addField, updateField, removeField, reorderFields } = useFormStore();
 
   useEffect(() => {
+    if (!formId || formId === 'undefined') return;
+
     const socket = io({ withCredentials: true });
     socketRef.current = socket;
 

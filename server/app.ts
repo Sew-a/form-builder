@@ -3,6 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.routes';
 import formsRoutes from './routes/forms.routes';
+import { getDbInfo } from './db/connect';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 
 export function createExpressApp(): Express {
@@ -14,12 +15,18 @@ export function createExpressApp(): Express {
       credentials: true,
     }),
   );
-  app.use(express.json());
+  app.use(express.json({ limit: '1mb' }));
   app.use(cookieParser());
 
   // Health check — handy for confirming the server boots before Next.js
   // takes over rendering.
-  app.get('/api/health', (_req, res) => res.json({ ok: true }));
+  app.get('/api/health', (_req, res) => {
+    const db = getDbInfo();
+    res.json({
+      ok: db.connected,
+      db,
+    });
+  });
 
   app.use('/api/auth', authRoutes);
   app.use('/api/forms', formsRoutes);

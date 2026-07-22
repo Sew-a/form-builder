@@ -181,3 +181,70 @@ layering sockets on top.
 - 🚧 Not yet built: the actual `dnd-kit` drag-and-drop UI, field palette,
   property panel, login/register forms, dashboard UI, response viewing UI —
   these are the next coding sessions, following the build order above.
+
+---
+
+## 9. Current Implementation Plan (Approved)
+
+### Phase 1: Ellipsus-Inspired Redesign
+**Palette:** Warm cream `#FAF7F2` bg, stone warm grays, terracotta `#C2703E` / amber `#D97706` accents, olive `#5B7553` highlights
+**Fonts:** Playfair Display (serif) for logo/branding, Inter for body text — loaded via Google Fonts
+**Smooth scrolling:** `scroll-behavior: smooth` in globals.css
+**Logo:** Replace SVG "F" icon with styled `<span className="font-logo">FORM-BUILDER</span>` text
+**All layout components** (Header, Sidebar, Footer, MainLayout), auth components, and landing page get warm-tone color overhaul
+
+**Files modified:**
+- `tailwind.config.js` — warm color palette, Playfair Display font family, custom animations
+- `src/app/globals.css` — Google Fonts import, smooth scroll, CSS custom properties, keyframes
+- `src/app/layout.tsx` — Inter font class on body
+- `src/components/layout/Header/Header.tsx` — logo text, warm colors
+- `src/components/layout/Sidebar/Sidebar.tsx` — warm accents
+- `src/components/layout/Footer/Footer.tsx` — warm branding
+- `src/components/layout/MainLayout/MainLayout.tsx` — warm background
+- `src/components/auth/AuthModal/AuthModal.tsx` — warm accents
+- `src/components/auth/SignInForm/SignInForm.tsx` — warm accents
+- `src/components/auth/SignUpForm/SignUpForm.tsx` — warm accents
+- `src/app/page.tsx` — full landing page redesign
+- `src/app/settings/profile/page.tsx` — accent colors
+
+### Phase 2: Dashboard (Form CRUD + Card Grid)
+- Expand `useFormStore` with `forms[]`, `loadForms()`, `createForm(title)`, `deleteForm(id)`
+- Dashboard: "Create New Form" button → modal dialog for name → create → redirect to `/builder/[id]`
+- Card grid: title, field count, created/updated dates, delete button, link to builder
+
+**Files modified/created:**
+- `src/store/useFormStore.ts` — dashboard state + API calls
+- `src/app/dashboard/page.tsx` — full dashboard UI
+- `src/components/builder/CreateFormDialog.tsx` — **NEW** name entry modal
+
+### Phase 3: Drag & Drop Builder
+**Extended field types:** `text`, `email`, `number`, `textarea`, `dropdown`, `checkbox`, `radio`, `date`, `file`, `rating`, `section` (content block)
+
+**3-panel layout:**
+- Left: `FieldPalette` — draggable field type cards grouped by category
+- Center: `BuilderCanvas` — `@dnd-kit` sortable area, drop zone for new fields, reorder existing
+- Right: `PropertyPanel` — edit selected field's label, placeholder, required, options, colors, background, border, width
+
+**Section Block:** Content element with editable text, customizable background color, border color, border radius, stretchable width — decorative only
+
+**Auto-save:** Debounced save to MongoDB on every field change via `PATCH /api/forms/:id`
+
+**Files modified/created:**
+- `shared/types.ts` — extend FIELD_TYPES
+- `src/app/builder/[formId]/page.tsx` — full builder page
+- `src/components/builder/FieldPalette.tsx` — **NEW**
+- `src/components/builder/BuilderCanvas.tsx` — **NEW**
+- `src/components/builder/PropertyPanel.tsx` — **NEW**
+- `src/components/fields/FieldRenderer.tsx` — **NEW**
+- `src/components/fields/SectionBlock.tsx` — **NEW**
+- `src/components/ui/Button.tsx` — **NEW**
+- `src/components/ui/Modal.tsx` — **NEW**
+
+### Phase 4: Property Panel Features
+- Label, placeholder, required toggle
+- Options editor (add/remove/reorder for dropdown, checkbox, radio)
+- Background color picker (warm palette swatches)
+- Border color picker
+- Border radius control
+- Width selector (full / half / auto)
+- For section blocks: editable text content area

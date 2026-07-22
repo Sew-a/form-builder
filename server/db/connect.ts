@@ -1,43 +1,70 @@
 import mongoose from 'mongoose';
 
 let isConnected = false;
+let dbMode: 'persistent' | 'memory' = 'persistent';
+let memoryServer: any = null;
+
+export function getDbInfo() {
+  return {
+    connected: mongoose.connection.readyState === 1,
+    mode: dbMode,
+    database: mongoose.connection.name || null,
+    persistent: dbMode === 'persistent',
+  };
+}
 
 export async function connectDB(): Promise<void> {
   if (isConnected) return;
 
-  let uri = process.env.MONGODB_URI;
+  const uri = process.env.MONGODB_URI;
   if (!uri) {
     throw new Error('MONGODB_URI is not set. Copy .env.example to .env and configure it.');
   }
 
   mongoose.set('strictQuery', true);
 
-  // If in development mode and pointing to local DB, try connecting first. If it fails, fall back to mongodb-memory-server.
   if (process.env.NODE_ENV === 'development' && (uri.includes('localhost') || uri.includes('127.0.0.1'))) {
     try {
-      console.log('[db] Attempting to connect to local MongoDB...');
-      await mongoose.connect(uri, { serverSelectionTimeoutMS: 2000 });
+      console.log('[db] Attempting to connect to local MongoDB at', uri, '...');
+      await mongoose.connect(uri, { serverSelectionTimeoutMS: 3000 });
       isConnected = true;
-      console.log('[db] MongoDB connected to local instance');
+      dbMode = 'persistent';
+      console.log('[db] ✅ MongoDB connected (persistent) →', uri);
     } catch (err) {
-      console.warn('[db] Local MongoDB connection failed. Starting in-memory MongoDB server as fallback...');
+      console.warn('');
+      console.warn('╔══════════════════════════════════════════════════════════════╗');
+      console.warn('║  ⚠  LOCAL MongoDB NOT FOUND — using in-memory database     ║');
+      console.warn('║                                                              ║');
+      console.warn('║  Your data (users, forms) will be LOST when the server      ║');
+      console.warn('║  stops. This is why sign-in fails after restarting.         ║');
+      console.warn('║                                                              ║');
+      console.warn('║  To fix this, start MongoDB locally:                        ║');
+      console.warn('║    • Install: https://www.mongodb.com/docs/manual/install/  ║');
+      console.warn('║    • Or run:  mongod                                        ║');
+      console.warn('║    • Or use MongoDB Atlas (free cloud DB)                   ║');
+      console.warn('╚══════════════════════════════════════════════════════════════╝');
+      console.warn('');
+
       try {
         const { MongoMemoryServer } = await import('mongodb-memory-server');
-        const mongoServer = await MongoMemoryServer.create();
-        const memoryUri = mongoServer.getUri();
-        console.log(`[db] In-memory MongoDB server started at: ${memoryUri}`);
+        memoryServer = await MongoMemoryServer.create();
+        const memoryUri = memoryServer.getUri();
+        console.log('[db] Starting in-memory MongoDB at:', memoryUri);
         await mongoose.connect(memoryUri);
         isConnected = true;
-        console.log('[db] Connected to in-memory MongoDB');
+        dbMode = 'memory';
+        console.log('[db] ⚡ Connected to in-memory MongoDB (NON-PERSISTENT)');
+        console.log('[db] ⚡ Register a new user — data resets on every server restart.');
       } catch (memErr) {
         console.error('[db] Failed to start in-memory MongoDB server:', memErr);
-        throw err; // throw original connection error
+        throw err;
       }
     }
   } else {
     await mongoose.connect(uri);
     isConnected = true;
-    console.log('[db] MongoDB connected');
+    dbMode = 'persistent';
+    console.log('[db] ✅ MongoDB connected (persistent)');
   }
 
   mongoose.connection.on('error', (err) => {
