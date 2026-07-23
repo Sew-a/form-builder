@@ -3,6 +3,7 @@
 import React from 'react';
 import { FieldType, FIELD_TYPES } from '@shared/types';
 import { FIELD_CATEGORIES, FIELD_ICONS, FIELD_LABELS, FIELD_CATEGORIES_MAP } from './constants';
+import { Button } from '../ui/Button';
 
 interface FieldPaletteProps {
   onAddField: (type: FieldType) => void;
@@ -22,14 +23,17 @@ export function FieldPalette({ onAddField }: FieldPaletteProps) {
             <p className="text-[10px] font-semibold uppercase tracking-wider text-dark-400 mb-2 px-1">{category}</p>
             <div className="space-y-1">
               {fields.map((type) => (
-                <button
+                <Button
                   key={type}
+                  variant="ghost"
+                  size="md"
+                  fullWidth
+                  className="justify-start rounded-lg px-3 py-2 text-left group"
                   onClick={() => onAddField(type)}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-dark-200 hover:bg-dark-700 hover:text-dark-50 transition-all text-left group"
                 >
                   <span className="text-dark-400 group-hover:text-accent-400 transition-colors">{FIELD_ICONS[type]}</span>
                   <span className="font-medium">{FIELD_LABELS[type]}</span>
-                </button>
+                </Button>
               ))}
             </div>
           </div>

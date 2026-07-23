@@ -1,12 +1,19 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { Button } from '../ui/Button';
 
 interface CreateFormDialogProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (name: string) => Promise<void>;
 }
+
+const CloseIcon = (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
 
 export function CreateFormDialog({ open, onClose, onSubmit }: CreateFormDialogProps) {
   const [name, setName] = useState('');
@@ -59,14 +66,7 @@ export function CreateFormDialog({ open, onClose, onSubmit }: CreateFormDialogPr
       <div className="w-full max-w-md rounded-2xl bg-dark-800 p-6 shadow-xl border border-dark-500 animate-scaleIn">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-bold text-dark-50">Create New Form</h2>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1 text-dark-300 hover:bg-dark-700 hover:text-dark-100 transition-all active:scale-95"
-          >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <Button variant="ghost" size="icon" icon={CloseIcon} onClick={onClose} />
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -88,21 +88,12 @@ export function CreateFormDialog({ open, onClose, onSubmit }: CreateFormDialogPr
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-              className="rounded-lg border border-dark-500 px-4 py-2 text-sm font-medium text-dark-200 hover:bg-dark-700 transition-all"
-            >
+            <Button variant="secondary" size="md" onClick={onClose} disabled={loading}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-accent-600 disabled:opacity-50 transition-all hover:shadow-md active:scale-[0.98]"
-            >
+            </Button>
+            <Button variant="primary" size="md" type="submit" disabled={loading} loading={loading}>
               {loading ? 'Creating...' : 'Create Form'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

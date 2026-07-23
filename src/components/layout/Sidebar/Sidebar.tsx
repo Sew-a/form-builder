@@ -5,12 +5,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { NAV_ITEMS, SIDEBAR_LOCKED_ICON } from './constants';
+import { Button } from '../../ui/Button';
 
 interface SidebarProps {
-  /**
-   * When true, the sidebar renders its own navigation items.
-   * When false, it relies on the parent to inject top-level nav links.
-   */
   showNavigation?: boolean;
 }
 
@@ -25,17 +22,19 @@ export function Sidebar({ showNavigation = true }: SidebarProps) {
 
     if (isLocked) {
       return (
-        <button
+        <Button
           key={item.name}
+          variant="ghost"
+          size="md"
           onClick={() => setAuthModalOpen(true, 'signin')}
-          className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm text-dark-300 hover:bg-dark-700 transition-all text-left"
+          className="w-full justify-between rounded-xl px-3 py-2.5 text-sm text-dark-300 text-left"
         >
           <div className="flex items-center space-x-3">
             {item.icon}
             <span>{item.name}</span>
           </div>
-                  {SIDEBAR_LOCKED_ICON}
-        </button>
+          {SIDEBAR_LOCKED_ICON}
+        </Button>
       );
     }
 
@@ -78,12 +77,15 @@ export function Sidebar({ showNavigation = true }: SidebarProps) {
             <p className="text-xs font-semibold text-dark-50">Unlock Dashboard</p>
             <p className="text-[10px] text-dark-300 mt-0.5">Sign in to start creating dynamic, collaborative forms.</p>
           </div>
-          <button
+          <Button
+            variant="primary"
+            size="sm"
+            fullWidth
+            className="rounded-lg py-1.5 shadow-sm hover:shadow-md active:scale-95"
             onClick={() => setAuthModalOpen(true, 'signin')}
-            className="w-full rounded-lg bg-accent-500 py-1.5 text-xs font-semibold text-white hover:bg-accent-600 transition-all shadow-sm hover:shadow-md active:scale-95"
           >
             Sign In Now
-          </button>
+          </Button>
         </div>
       )}
     </>

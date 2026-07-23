@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import { Button } from './Button';
 
 interface ModalProps {
   open: boolean;
@@ -8,6 +9,12 @@ interface ModalProps {
   title?: string;
   children: React.ReactNode;
 }
+
+const CloseIcon = (
+  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
 
 export function Modal({ open, onClose, title, children }: ModalProps) {
   useEffect(() => {
@@ -33,14 +40,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         {title && (
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-bold text-dark-50">{title}</h2>
-            <button
-              onClick={onClose}
-              className="rounded-lg p-1 text-dark-300 hover:bg-dark-700 hover:text-dark-100 transition-all active:scale-95"
-            >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <Button variant="ghost" size="icon" icon={CloseIcon} onClick={onClose} />
           </div>
         )}
         {children}

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FormField, COLOR_OPTIONS, BORDER_COLOR_OPTIONS, BORDER_RADIUS_OPTIONS, WIDTH_OPTIONS } from '@shared/types';
+import { Button } from '../ui/Button';
 
 interface PropertyPanelProps {
   field: FormField | null;
@@ -113,15 +114,18 @@ export function PropertyPanel({ field, onUpdate, onDelete }: PropertyPanelProps)
       <div className="p-4 border-b border-dark-600">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-dark-100">Field Properties</h3>
-          <button
+          <Button
+            variant="ghostDanger"
+            size="iconSm"
             onClick={onDelete}
-            className="rounded-md p-1.5 text-dark-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
+            className="rounded-md"
             title="Delete field"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
+            icon={
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            }
+          />
         </div>
       </div>
 

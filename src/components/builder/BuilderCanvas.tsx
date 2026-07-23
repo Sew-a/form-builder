@@ -20,6 +20,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { FormField } from '@shared/types';
 import { FieldRenderer } from '../fields/FieldRenderer';
+import { Button } from '../ui/Button';
 
 interface BuilderCanvasProps {
   fields: FormField[];
@@ -28,6 +29,12 @@ interface BuilderCanvasProps {
   onReorder: (orderedIds: string[]) => void;
   onDeleteField: (id: string) => void;
 }
+
+const CloseIcon = (
+  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
 
 function SortableField({
   field,
@@ -67,15 +74,14 @@ function SortableField({
       }`}
     >
       <div className="absolute -top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
-          onClick={(e) => { e.stopPropagation(); onDelete(); }}
-          className="rounded-md bg-dark-700 border border-dark-500 p-1 text-dark-300 hover:text-red-400 hover:border-red-500/30 shadow-sm transition-all"
+        <Button
+          variant="ghostDanger"
+          size="iconSm"
+          icon={CloseIcon}
+          className="rounded-md bg-dark-700 border border-dark-500 shadow-sm"
           title="Delete field"
-        >
-          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+        />
       </div>
 
       <div

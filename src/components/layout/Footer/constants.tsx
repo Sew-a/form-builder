@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const FOOTER_LINKS = [
   { label: 'Privacy Policy', href: '#' },
   { label: 'Terms of Service', href: '#' },

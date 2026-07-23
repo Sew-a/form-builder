@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { SignInForm } from '../SignInForm';
 import { SignUpForm } from '../SignUpForm';
+import { Button } from '../../ui/Button';
 
 export function AuthModal() {
   const { authModalOpen, authModalTab, setAuthModalOpen } = useAuthStore();
@@ -65,14 +66,16 @@ export function AuthModal() {
               )}
             </button>
           </div>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setAuthModalOpen(false)}
-            className="rounded-lg p-1 text-dark-300 hover:bg-dark-700 hover:text-dark-100 transition-all active:scale-95"
-          >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+            icon={
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            }
+          />
         </div>
 
         <div className="space-y-4">

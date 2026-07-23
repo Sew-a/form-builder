@@ -1,15 +1,17 @@
 'use client';
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../../../store/useAuthStore';
-import { UserAvatar } from '../../auth/UserAvatar';
 import { fileToAvatarDataUrl } from '../../../lib/avatarImage';
 import {
   UpdateProfileSchema,
   ChangePasswordSchema,
   DeleteAccountSchema,
 } from '@shared/types';
+import { ProfilePicture } from './ProfilePicture';
+import { ProfileForm } from './ProfileForm';
+import { PasswordForm } from './PasswordForm';
+import { DeleteAccountSection } from './DeleteAccountSection';
 
 export function ProfileSettings() {
   const router = useRouter();
@@ -54,21 +56,6 @@ export function ProfileSettings() {
       setNickname(user.nickname ?? '');
     }
   }, [user]);
-
-  if (!user) {
-    return (
-      <div className="rounded-2xl border border-dark-600 bg-dark-800 p-10 text-center space-y-4">
-        <p className="text-dark-300">Sign in to manage your account settings.</p>
-        <button
-          type="button"
-          onClick={() => setAuthModalOpen(true, 'signin')}
-          className="rounded-lg bg-accent-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-accent-600 transition-all"
-        >
-          Sign In
-        </button>
-      </div>
-    );
-  }
 
   const inputClass = (hasError: boolean) =>
     `w-full rounded-lg border px-3 py-2.5 text-sm text-dark-50 bg-dark-900 transition-all focus:outline-none focus:ring-2 ${
@@ -199,212 +186,57 @@ export function ProfileSettings() {
         </div>
       )}
 
-      {/* Profile picture */}
-      <section className="rounded-2xl border border-dark-600 bg-dark-800 p-6">
-        <h2 className="text-sm font-semibold text-dark-100">Profile picture</h2>
-        <p className="mt-1 text-xs text-dark-400">JPEG, PNG, or WebP. Images are resized automatically.</p>
-        <div className="mt-4 flex flex-wrap items-center gap-4">
-          <UserAvatar name={user.name} avatarUrl={user.avatarUrl} size="md" />
-          <div className="flex flex-wrap gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className="hidden"
-              onChange={handleAvatarChange}
-            />
-            <button
-              type="button"
-              disabled={loading || avatarUploading}
-              onClick={() => fileInputRef.current?.click()}
-              className="rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-600 disabled:opacity-50 transition-all"
-            >
-              {avatarUploading ? 'Uploading…' : 'Upload photo'}
-            </button>
-            {user.avatarUrl && (
-              <button
-                type="button"
-                disabled={loading || avatarUploading}
-                onClick={handleRemoveAvatar}
-                className="rounded-lg border border-dark-500 px-4 py-2 text-sm font-medium text-dark-200 hover:bg-dark-700 disabled:opacity-50 transition-all"
-              >
-                Remove
-              </button>
-            )}
-          </div>
-        </div>
-        {avatarError && <p className="mt-2 text-xs text-red-400">{avatarError}</p>}
-      </section>
+      <ProfilePicture
+        user={user!}
+        loading={loading}
+        avatarUploading={avatarUploading}
+        avatarError={avatarError}
+        onAvatarChange={handleAvatarChange}
+        onRemoveAvatar={handleRemoveAvatar}
+      />
 
-      {/* Name & nickname */}
-      <section className="rounded-2xl border border-dark-600 bg-dark-800 p-6">
-        <h2 className="text-sm font-semibold text-dark-100">Profile</h2>
-        <form onSubmit={handleProfileSubmit} className="mt-4 space-y-4 max-w-md">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-dark-300 mb-1.5">
-              Display name
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className={inputClass(!!profileErrors.name)}
-              disabled={loading}
-            />
-            {profileErrors.name && (
-              <p className="mt-1 text-xs text-red-400">{profileErrors.name}</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-dark-300 mb-1.5">
-              Nickname
-            </label>
-            <input
-              type="text"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              placeholder="Optional — letters, numbers, _ and -"
-              className={inputClass(!!profileErrors.nickname)}
-              disabled={loading}
-            />
-            {profileErrors.nickname && (
-              <p className="mt-1 text-xs text-red-400">{profileErrors.nickname}</p>
-            )}
-          </div>
-          <p className="text-xs text-dark-400">Email: {user.email}</p>
-          <div className="flex items-center gap-3">
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-lg bg-accent-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent-600 disabled:opacity-50 transition-all"
-            >
-              Save profile
-            </button>
-            {profileSaved && (
-              <span className="text-xs font-medium text-emerald-400">Saved</span>
-            )}
-          </div>
-        </form>
-      </section>
+      <ProfileForm
+        name={name}
+        nickname={nickname}
+        loading={loading}
+        profileSaved={profileSaved}
+        profileErrors={profileErrors}
+        email={user!.email}
+        onNameChange={setName}
+        onNicknameChange={setNickname}
+        onSubmit={handleProfileSubmit}
+        getInputClass={inputClass}
+      />
 
-      {/* Password */}
-      <section className="rounded-2xl border border-dark-600 bg-dark-800 p-6">
-        <h2 className="text-sm font-semibold text-dark-100">Change password</h2>
-        <form onSubmit={handlePasswordSubmit} className="mt-4 space-y-4 max-w-md">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-dark-300 mb-1.5">
-              Current password
-            </label>
-            <input
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className={inputClass(!!passwordErrors.currentPassword)}
-              disabled={loading}
-              autoComplete="current-password"
-            />
-            {passwordErrors.currentPassword && (
-              <p className="mt-1 text-xs text-red-400">{passwordErrors.currentPassword}</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-dark-300 mb-1.5">
-              New password
-            </label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className={inputClass(!!passwordErrors.newPassword)}
-              disabled={loading}
-              autoComplete="new-password"
-            />
-            {passwordErrors.newPassword && (
-              <p className="mt-1 text-xs text-red-400">{passwordErrors.newPassword}</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-dark-300 mb-1.5">
-              Confirm new password
-            </label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className={inputClass(!!passwordErrors.confirmPassword)}
-              disabled={loading}
-              autoComplete="new-password"
-            />
-            {passwordErrors.confirmPassword && (
-              <p className="mt-1 text-xs text-red-400">{passwordErrors.confirmPassword}</p>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-lg bg-accent-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent-600 disabled:opacity-50 transition-all"
-            >
-              Update password
-            </button>
-            {passwordSaved && (
-              <span className="text-xs font-medium text-emerald-400">Password updated</span>
-            )}
-          </div>
-        </form>
-      </section>
+      <PasswordForm
+        currentPassword={currentPassword}
+        newPassword={newPassword}
+        confirmPassword={confirmPassword}
+        loading={loading}
+        passwordSaved={passwordSaved}
+        passwordErrors={passwordErrors}
+        onCurrentPasswordChange={setCurrentPassword}
+        onNewPasswordChange={setNewPassword}
+        onConfirmPasswordChange={setConfirmPassword}
+        onSubmit={handlePasswordSubmit}
+        getInputClass={inputClass}
+      />
 
-      {/* Delete account */}
-      <section className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6">
-        <h2 className="text-sm font-semibold text-red-400">Delete account</h2>
-        <p className="mt-1 text-xs text-dark-300 max-w-lg">
-          Permanently delete your account and all forms you own. This cannot be undone.
-        </p>
-        {!deleteConfirmOpen ? (
-          <button
-            type="button"
-            onClick={() => {
-              setDeleteConfirmOpen(true);
-              setDeletePassword('');
-              setDeleteError(null);
-            }}
-            className="mt-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-400 hover:bg-red-500/20 transition-all"
-          >
-            Delete my account
-          </button>
-        ) : (
-          <form onSubmit={handleDeleteAccount} className="mt-4 max-w-md space-y-3">
-            <p className="text-xs text-red-400 font-medium">Enter your password to confirm.</p>
-            <input
-              type="password"
-              value={deletePassword}
-              onChange={(e) => setDeletePassword(e.target.value)}
-              placeholder="Your password"
-              className={inputClass(!!deleteError)}
-              disabled={loading}
-              autoComplete="current-password"
-            />
-            {deleteError && <p className="text-xs text-red-400">{deleteError}</p>}
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                disabled={loading}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 disabled:opacity-50"
-              >
-                Confirm delete
-              </button>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => setDeleteConfirmOpen(false)}
-                className="rounded-lg border border-dark-500 px-4 py-2 text-sm font-medium text-dark-200 hover:bg-dark-700"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        )}
-      </section>
+      <DeleteAccountSection
+        deleteConfirmOpen={deleteConfirmOpen}
+        deletePassword={deletePassword}
+        deleteError={deleteError}
+        loading={loading}
+        onDeleteClick={() => {
+          setDeleteConfirmOpen(true);
+          setDeletePassword('');
+          setDeleteError(null);
+        }}
+        onPasswordChange={setDeletePassword}
+        onCancel={() => setDeleteConfirmOpen(false)}
+        onSubmit={handleDeleteAccount}
+        getInputClass={inputClass}
+      />
     </div>
   );
 }
